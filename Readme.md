@@ -9,7 +9,7 @@ ADB is an essential tool for developers, advanced users, and enthusiasts who wan
 > You pay for a device which you can't really control
 > You own a device that you don't really own, it owns you
 
-There are so many preinstalled apps on every phone that are completely unnecessary and don't want to be on your phone anymore. If you have Netflix, YouTube or Google, try to uninstall them ... Well, you can't. You can only disable them, but that doesn't mean they've been removed from your phone. They can still do stuff, and that's what this project is all about. You can check which apps you don't want anymore and remove them intuitively.
+There are so many preinstalled apps on every phone that are completely unnecessary and don't want to be on your phone anymore. If you have Netflix, YouTube, or Google, try to uninstall them ... Well, you can't. You can only disable them, but that doesn't mean they've been removed from your phone. They can still do stuff, and that's what this project is all about. You can check which apps you don't want anymore and remove them intuitively.
 
 ### **Prerequisites**
 
@@ -20,7 +20,7 @@ Note: It is not necessary to root your mobile device!
 
 ADB provides access to several powerful commands that allow you to:
 
-- **Install and Uninstall Apps**: You can install apps from your computer to the Android device, or uninstall apps directly from the device.
+- **Install and Uninstall Apps**: You can install apps from your computer on the Android device or uninstall apps directly from the device.
 - **List Installed Apps**: You can view a list of all apps installed on the device.
 - **Access Device Shell**: You can interact with the Android device's operating system directly via a command-line interface.
 - **File Management**: You can copy files to and from your Android device.
@@ -40,12 +40,20 @@ Before you can use ADB on your Windows computer, you need to install **ADB tools
 3. **Connect the Device via USB**:
    - Connect your Android device to your computer via a USB cable.
    - Allow USB debugging on your phone if prompted.
+ -    If the data exchange confirmation popup does not appear on the Android device, you can follow these steps to force it to appear:
 
-If you have this, go an checkout this video here for how you can add ADB as you environment variables in windows.
-YouTube Prompt: how to install adb on windows
+       - Revoke USB debugging authorizations:
+       On your Android device, go to "Settings" -> "Developer options" and select the "Revoke USB debugging authorizations" option.
+
+        - Reconnect: Disconnect and reconnect the USB cable.
+
+        - Popup prompt: After reconnecting, the popup confirming the data exchange should appear on the Android device.
+
+If you have this, go and check out this video here to learn how you can add ADB as your environment variable in Windows.
+YouTube Prompt: How to install adb on Windows
 [Setup Guide 1 recommended](https://www.youtube.com/watch?v=I_W7pzpB09M)
 
-YouTube Prompt: android adb tool
+YouTube Prompt: Android ADB tool
 [Setup Guide 2 more detailed](https://youtu.be/GERlhgCcoBc?si=BprpICH6d4HKPjNT)
 
 ### **List All Installed Apps and Store in a `.txt` File**
@@ -116,13 +124,13 @@ adb shell pm uninstall -k --user 0 com.example.package1
 
 If you are searching for a specific app that you want to remove from your phone which we didn't cover inside the script or under the links for the resources, eather go to the [Galaxy Store](https://galaxystore.samsung.com/games) or [Google Play Store](https://play.google.com/store/games?device=windows) and go searching for the specific app you are looking for.
 
-Now, if I wanted to remove **Samsung My Files** App which you can find inside the google play store website the url looks like this
+Now, if I wanted to remove **Samsung My Files** App, which you can find inside the Google Play Store website, the URL looks like this
 
 ```
 https://play.google.com/store/apps/details?id=com.sec.android.app.myfiles&hl=gsw
 ```
 
-Within the url you can find the ID which is in this case **com.sec.android.app.myfiles**. That's exactly how the package will be then called if I was about to download it. So, if I wanted to remove it using ADB tools, use the premade that you can find here which is **adb shell pm uninstall --user 0 com.example.package1** and then modify the package name from **com.example.package1** to **com.sec.android.app.myfiles** which results to this command: `adb shell pm uninstall --user 0 com.sec.android.app.myfiles`. Note that if you wanted to keep the data created by this app that you whish to delete add between **uninstall** and **--user** **-k** to it. If you want to remove everything from it, don't add **-k** to the command as already covered inside the chapter **Uninstall Apps Using ADB**.
+Within the URL you can find the ID which is in this case **com.sec.android.app.myfiles**. That's exactly how the package will be then called if I were about to download it. So, if I wanted to remove it using ADB tools, use the premade that you can find here which is **adb shell pm uninstall --user 0 com.example.package1** and then modify the package name from **com.example.package1** to **com.sec.android.app.myfiles** which results to this command: `adb shell pm uninstall --user 0 com.sec.android.app.myfiles`. Note that if you wanted to keep the data created by this app that you whish to delete add between **uninstall** and **--user** **-k** to it. If you want to remove everything from it, don't add **-k** to the command as already covered inside the chapter **Uninstall Apps Using ADB**.
 
 ### **Setting PowerShell Execution Policy to Allow Scripts**
 
@@ -169,11 +177,11 @@ Once the execution policy is set, you can create and run a PowerShell script to 
 
 #### **PowerShell Script Example**:
 
-To run the powershell script, you just need to copy and paste the entire script into the input field. Make sure to use **Windows PowerShell ISE** and not **Windows PowerShell** as this wouldn't contain a big input field to enter the script you want to run.
+To run the PowerShell script, you just need to copy and paste the entire script into the input field. Make sure to use **Windows PowerShell ISE** and not **Windows PowerShell** as this wouldn't contain a big input field to enter the script you want to run.
 
 ### **Turn Off usage data access**
 
-Within the "Usage data access" within your settings if you have given permission to some apps they could do the following of to monitor which other apps you use and how often and identify your service provider, language settings, and other usage data.
+Within the "Usage data access" within your settings, if you have given permission to some apps, they could do the following to monitor which other apps you use and how often, and identify your service provider, language settings, and other usage data.
 
 It is recommended to turn it off for each app. How?
 
@@ -190,7 +198,7 @@ This way, those apps won't be able to track you anymore.
 
 Example with Samsung Galaxy Store.
 
-1. **Go to google and search for APK name**:
+1. **Go to Google and search for APK name**:
 
 ```
 samsung galaxy store apk
@@ -223,7 +231,7 @@ adb shell pm install /data/local/tmp/com.sec.android.app.samsungapps.apk
 
 ## **More Information**
 
-What the package name of **Samsung App Cloud** is
+What is the package name of **Samsung App Cloud**?
 https://www.reddit.com/r/Intune/comments/12iyniy/any_know_package_name_of_samsung_app_cloud_so_can/?rdt=52906<br>
 
 How to uninstall **Samsung Gallery App** - Not recommended
