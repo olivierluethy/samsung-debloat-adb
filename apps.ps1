@@ -41,7 +41,6 @@ $apps = @(
     # === SAMSUNG MISCELLANEOUS APPS ===
     # Various Samsung utilities and services
     "com.samsung.android.forest", # Digital Detox - App for focus and screen time management
-    "com.samsung.android.game.gos", # Game Optimization Service (Duplicate) - Game performance enhancer
     "com.samsung.android.knox.kpecore", # Knox KPE Core - Enterprise security core
     "com.samsung.android.knox.containercore", # Knox Container Core - Secure container service
     "com.samsung.android.rubin.app", # Rubin App - Personalization service
