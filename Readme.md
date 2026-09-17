@@ -1,274 +1,266 @@
-### **Introduction to ADB (Android Debug Bridge)**
+# Samsung Debloat via ADB
 
-**ADB** (Android Debug Bridge) is a versatile command-line tool used for managing Android devices and emulators. It allows you to interact with your Android device from a computer, enabling you to perform a wide range of tasks like installing and uninstalling apps, debugging, copying files, and even accessing the device’s shell.
+> Take back control of your phone. Remove preinstalled Samsung, Google and partner bloatware — no root required.
 
-ADB is an essential tool for developers, advanced users, and enthusiasts who want to manage their Android devices beyond what is offered by the standard user interface.
+<p align="center">
+  <img alt="Platform" src="https://img.shields.io/badge/platform-Windows-blue">
+  <img alt="Language" src="https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?logo=powershell&logoColor=white">
+  <img alt="Root" src="https://img.shields.io/badge/root-not%20required-success">
+  <img alt="License" src="https://img.shields.io/badge/license-MIT-green">
+  <img alt="PRs Welcome" src="https://img.shields.io/badge/PRs-welcome-brightgreen">
+</p>
 
-### **Why this project**
+An interactive PowerShell toolkit that uses **ADB (Android Debug Bridge)** to list and uninstall the unwanted, preinstalled apps ("bloatware") that ship on Samsung Galaxy and other Android devices — the ones you normally can only *disable*, not remove.
 
-> You pay for a device which you can't really control
-> You own a device that you don't really own, it owns you
+Removal is done **per user** (`--user 0`), which cleanly uninstalls the app for the active user without root and without modifying the system partition. Everything can be restored with a factory reset if needed.
 
-There are so many preinstalled apps on every phone that are completely unnecessary and don't want to be on your phone anymore. If you have Netflix, YouTube, or Google, try to uninstall them ... Well, you can't. You can only disable them, but that doesn't mean they've been removed from your phone. They can still do stuff, and that's what this project is all about. You can check which apps you don't want anymore and remove them intuitively.
+---
 
-### **Prerequisites**
+## Table of Contents
 
-All you need is your Android-based phone and a computer.
-Note: It is not necessary to root your mobile device!
+- [Why this project](#why-this-project)
+- [Features](#features)
+- [Requirements](#requirements)
+- [Setup](#setup)
+  - [1. Install ADB (platform-tools)](#1-install-adb-platform-tools)
+  - [2. Enable USB debugging](#2-enable-usb-debugging)
+  - [3. Connect your device](#3-connect-your-device)
+  - [4. Allow PowerShell scripts](#4-allow-powershell-scripts)
+- [Usage](#usage)
+- [What gets removed](#what-gets-removed)
+- [Safety & important notes](#safety--important-notes)
+- [Manual commands (cheat sheet)](#manual-commands-cheat-sheet)
+- [Finding a package name](#finding-a-package-name)
+- [Restoring an app](#restoring-an-app)
+- [Turn off "Usage data access"](#turn-off-usage-data-access)
+- [Contributing](#contributing)
+- [Resources](#resources)
+- [Disclaimer](#disclaimer)
+- [License](#license)
 
-### **What You Can Do with ADB**
+---
 
-ADB provides access to several powerful commands that allow you to:
+## Why this project
 
-- **Install and Uninstall Apps**: You can install apps from your computer on the Android device or uninstall apps directly from the device.
-- **List Installed Apps**: You can view a list of all apps installed on the device.
-- **Access Device Shell**: You can interact with the Android device's operating system directly via a command-line interface.
-- **File Management**: You can copy files to and from your Android device.
-- **Debugging**: ADB can be used to debug apps and monitor device logs.
+> You pay for a device you can't really control.
+> You own a device that, in a way, owns you.
 
-### **Setting Up ADB on Windows**
+Every phone ships with dozens of preinstalled apps that most people never use — and often can't remove. Try uninstalling Netflix, YouTube or a Bixby service through the normal settings: you can only *disable* them. Disabled apps still occupy storage and can keep running background services.
 
-Before you can use ADB on your Windows computer, you need to install **ADB tools** and set up your device for communication.
+This toolkit lets you review a curated list of such packages and remove the ones you don't want — intuitively, and reversibly.
 
-1. **Install ADB Tools**:
-   - Download and install **[ADB](https://developer.android.com/tools/releases/platform-tools?hl=de)** from the official **Android Developer website** or use a package manager like **Chocolatey** on Windows.
-2. **Enable USB Debugging on your Android device**:
+## Features
 
-   - On your Android device, go to **Settings > About phone**, tap **Build number** 7 times to unlock Developer options.
-   - Then, go to **Settings > Developer options** and enable **USB Debugging**.
+- **Interactive uninstaller** — walks you through the process and reports success/failure per app.
+- **Per-app safety warnings** — before removing a package that would break your device or take away an important capability, the script stops, explains *exactly what you will lose*, and asks for confirmation. Device-breaking removals (e.g. the launcher) require typing a confirmation word; feature-loss removals ask a simple yes/no.
+- **Curated package lists** — well-documented, safe-to-remove Samsung, Google and partner packages, grouped by category.
+- **Keep-data option** — choose whether to wipe app data/cache (`--user 0`) or preserve it (`-k`).
+- **Optional Samsung UI removal** — a separate, clearly-marked list for advanced users, gated behind explicit confirmation and a backup prompt.
+- **Safe by design** — each package is checked before and after removal; nothing is touched on the system partition, so a factory reset restores everything.
+- **No root required.**
 
-3. **Connect the Device via USB**:
-   - Connect your Android device to your computer via a USB cable.
-   - Allow USB debugging on your phone if prompted.
- -    If the data exchange confirmation popup does not appear on the Android device, you can follow these steps to force it to appear:
+## Requirements
 
-       - Revoke USB debugging authorizations:
-       On your Android device, go to "Settings" -> "Developer options" and select the "Revoke USB debugging authorizations" option.
+- A Windows PC with **PowerShell 5.1+** (Windows PowerShell ISE recommended for pasting scripts).
+- **ADB / platform-tools** installed and available on your `PATH`.
+- An Android device (optimised for **Samsung Galaxy**, but the manual commands work on any Android phone) with **USB debugging** enabled.
+- A USB cable.
 
-        - Reconnect: Disconnect and reconnect the USB cable.
+## Setup
 
-        - Popup prompt: After reconnecting, the popup confirming the data exchange should appear on the Android device.
+### 1. Install ADB (platform-tools)
 
-If you have this, go and check out this video here to learn how you can add ADB as your environment variable in Windows.
-YouTube Prompt: How to install adb on Windows
-[Setup Guide 1 recommended](https://www.youtube.com/watch?v=I_W7pzpB09M)
+Download the official **[Android SDK Platform-Tools](https://developer.android.com/tools/releases/platform-tools)** and add the folder to your `PATH`, or install via a package manager:
 
-YouTube Prompt: Android ADB tool
-[Setup Guide 2 more detailed](https://youtu.be/GERlhgCcoBc?si=BprpICH6d4HKPjNT)
+```powershell
+choco install adb        # Chocolatey
+# or
+winget install Google.PlatformTools
+```
 
-### **List All Installed Apps and Store in a `.txt` File**
+Verify it works:
 
-Now, let’s explore how you can **list all installed apps** on your Android device and **store the list in a `.txt` file**.
+```powershell
+adb version
+```
 
-#### **Listing Installed Apps**
+Video walkthroughs for adding ADB to your Windows `PATH`:
+- [Setup guide 1 (recommended)](https://www.youtube.com/watch?v=I_W7pzpB09M)
+- [Setup guide 2 (more detailed)](https://youtu.be/GERlhgCcoBc)
 
-1. **Open Windows PowerShell or Command Prompt**:
+### 2. Enable USB debugging
 
-   - You can either use **PowerShell** or **Command Prompt** to execute ADB commands.
+1. Go to **Settings → About phone** and tap **Build number** seven times to unlock **Developer options**.
+2. Go to **Settings → Developer options** and enable **USB debugging**.
 
-2. **Run the Following Command to List All Apps**:
+### 3. Connect your device
 
-   ```bash
-   adb shell pm list packages --user 0
+1. Connect the phone via USB.
+2. Confirm the **"Allow USB debugging?"** prompt on the phone.
+
+If the prompt doesn't appear:
+- In **Developer options**, tap **Revoke USB debugging authorizations**.
+- Unplug and reconnect the cable — the prompt should now appear.
+
+Confirm the device is detected:
+
+```powershell
+adb devices
+```
+
+### 4. Allow PowerShell scripts
+
+By default Windows blocks unsigned scripts. In an **elevated PowerShell** window:
+
+```powershell
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+`RemoteSigned` lets you run local scripts while still requiring downloaded scripts to be signed.
+
+## Usage
+
+1. Clone or download this repository:
+
+   ```powershell
+   git clone https://github.com/olivierluethy/samsung-debloat-adb.git
+   cd samsung-debloat-adb
    ```
 
-   This command will list all the package names of apps installed on your Android device. You can filter the list for user apps or system apps with specific flags:
+2. Open **Windows PowerShell ISE** (it has a large script pane) and run the entry point:
 
-   - To list **only user apps**:
-
-     ```bash
-     adb shell pm list packages -3 --user 0
-     ```
-
-   - To list **only system apps**:
-     ```bash
-     adb shell pm list packages -s --user 0
-     ```
-
-3. **Store the List in a `.txt` File**:
-
-   To save the list of installed apps into a text file, you can redirect the output to a `.txt` file like so:
-
-   But before you run it, it must already exist.
-
-   ```bash
-   adb shell pm list packages > C:\path\to\your\file\installed_apps.txt
+   ```powershell
+   .\main.ps1
    ```
 
-   This will save the list of installed apps to `installed_apps.txt` on your computer.
-   That way it's much easier to filter and look for apps you might not want to have on your phone.
+3. Follow the prompts:
+   - **Delete all app data?** — `j` removes apps *and* their cache/data; `n` uses `-k` to keep data.
+   - **Remove Samsung UI components too?** — advanced, optional, and gated behind a backup confirmation.
 
-#### **Uninstall Apps Using ADB**
+The script checks whether each package is installed, uninstalls it, verifies removal, and prints a colour-coded result with a progress bar.
 
-To uninstall apps via ADB, use the following command:
+> **Note:** The script prompts are in German. Answer `j` (ja) for yes and `n` (nein) for no.
 
-```bash
+## What gets removed
+
+Packages are organised into two files:
+
+| File | Scope | Risk |
+|------|-------|------|
+| `apps.ps1` (`$apps`) | User-facing bloatware — Bixby, Meta/Facebook, Samsung Pay/Pass, AR/gaming features, streaming apps, Microsoft & Google partner apps, language packs, and more. | Safe — the device keeps working normally. |
+| `system.ps1` (`$system`) | Samsung One UI / system components (DeX, LED cover, launcher, ANT+, etc.). | **Advanced** — can degrade the UI. Opt-in only. |
+| `warnings.ps1` (`$criticalWarnings`) | Consequence descriptions for packages whose removal breaks the device or removes an important capability. | Safety layer — triggers a confirmation prompt before those packages are removed. |
+
+Each entry is a package name with an inline comment explaining what it is, so you can review and comment out anything you want to keep before running the script.
+
+### How the warnings work
+
+`warnings.ps1` maps risky packages to a plain-language description of the consequence and a severity level:
+
+- **Critical** — removal makes the device unusable or destroys data (e.g. the One UI launcher, Secure Folder, the default SMS app). You must type `LOESCHEN` to proceed; anything else skips the package.
+- **Warning** — a major feature goes away but the device keeps working (e.g. Bixby, Samsung Pay, the default browser or calendar). A simple `j`/`n` prompt lets you decide.
+
+Only genuinely consequential packages are listed, so warnings stay meaningful. To add your own, extend the `$criticalWarnings` hashtable in `warnings.ps1`.
+
+## Safety & important notes
+
+- **Do not remove the Samsung launcher** (`com.sec.android.app.launcher`, "Samsung One UI Home") unless you have installed and set an alternative launcher first. Removing it can leave you unable to open apps.
+- The **`# GENERAL SYSTEM`** block in `system.ps1` can degrade performance and usability. Only run it if you understand the consequences and have a backup.
+- Removal is **per user** and does not modify the read-only system partition, so a **factory reset restores everything**.
+- Review each list and comment out (prefix with `#`) any package you want to keep before running.
+
+## Manual commands (cheat sheet)
+
+List all installed packages:
+
+```powershell
+adb shell pm list packages --user 0
+```
+
+List only user apps / only system apps:
+
+```powershell
+adb shell pm list packages -3 --user 0    # user-installed
+adb shell pm list packages -s --user 0    # system
+```
+
+Save the list to a file for easier filtering:
+
+```powershell
+adb shell pm list packages > installed_apps.txt
+```
+
+Uninstall an app (removing data):
+
+```powershell
 adb shell pm uninstall --user 0 com.example.package
 ```
 
-Replace `com.example.package` with the actual package name of the app you want to remove. You can find the package names from the output of the list command above.
+Uninstall but keep data and cache:
 
-You can also use a script to uninstall multiple apps at once. This will also remove all the data. Example:
-
-```bash
-adb shell pm uninstall --user 0 com.example.package1
+```powershell
+adb shell pm uninstall -k --user 0 com.example.package
 ```
 
-If you want to uninstall the application but keep your data and cache files, you can do so here.
+## Finding a package name
 
-```bash
-adb shell pm uninstall -k --user 0 com.example.package1
-```
-
-### **How to find package to delete on phone using ADB?**
-
-If you are searching for a specific app that you want to remove from your phone which we didn't cover inside the script or under the links for the resources, eather go to the [Galaxy Store](https://galaxystore.samsung.com/games) or [Google Play Store](https://play.google.com/store/games?device=windows) and go searching for the specific app you are looking for.
-
-Now, if I wanted to remove **Samsung My Files** App, which you can find inside the Google Play Store website, the URL looks like this
+If you want to remove an app that isn't in the lists, find its package name from the **Google Play** or **Galaxy Store** URL. For example, Samsung "My Files":
 
 ```
-https://play.google.com/store/apps/details?id=com.sec.android.app.myfiles&hl=gsw
+https://play.google.com/store/apps/details?id=com.sec.android.app.myfiles
 ```
 
-Within the URL you can find the ID which is in this case **com.sec.android.app.myfiles**. That's exactly how the package will be then called if I were about to download it. So, if I wanted to remove it using ADB tools, use the premade that you can find here which is **adb shell pm uninstall --user 0 com.example.package1** and then modify the package name from **com.example.package1** to **com.sec.android.app.myfiles** which results to this command: `adb shell pm uninstall --user 0 com.sec.android.app.myfiles`. Note that if you wanted to keep the data created by this app that you whish to delete add between **uninstall** and **--user** **-k** to it. If you want to remove everything from it, don't add **-k** to the command as already covered inside the chapter **Uninstall Apps Using ADB**.
+The `id=` value (`com.sec.android.app.myfiles`) is the package name. To remove it:
 
-### **Setting PowerShell Execution Policy to Allow Scripts**
-
-By default, Windows PowerShell may block the execution of scripts for security reasons. To allow PowerShell scripts to run, you need to modify the execution policy:
-
-1. **Open PowerShell as Administrator**:
-
-   - Right-click on **PowerShell** and select **Run as Administrator**.
-
-2. **Set the Execution Policy**:
-   To allow running scripts, set the execution policy to **RemoteSigned**:
-
-   ```powershell
-   Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
-   ```
-
-   - **RemoteSigned** allows you to run scripts written on your computer but requires downloaded scripts to be signed by a trusted publisher.
-
-3. **Confirm the Change**:
-   You will be prompted to confirm the change. Type `Y` to confirm.
-
-### **Running the PowerShell Script**
-
-**Important Note:**
-
-1. **Samsung App Launcher**:
-
-   - Do not remove the **Samsung App Launcher**. Removing it will also uninstall the **Samsung One UI Home** app, which is essential for the user interface design of your Samsung device. This specifically pertains to the package **"com.sec.android.app.launcher"**.
-
-2. **Script Caution**:
-
-   - If you plan to run the script section titled **# GENERAL SYSTEM - Miscellaneous System Apps and Services** in PowerShell ISE, be aware that it may negatively impact your phone's performance.
-
-3. **Potential Access Issues**:
-
-   - Without the Samsung App Launcher installed, you may face significant limitations in using your phone. You will likely only be able to access apps that you have previously opened, and switching between them will be possible, but direct access to other apps will be restricted.
-
-4. **Downloading a Samsung App Launcher**:
-   - If you still have the Google Play Store app open, you can download a Samsung App Launcher from [this link](https://play.google.com/store/search?q=samsung%20app%20launcher&c=apps&hl=gsw). However, this is only possible if the Play Store is currently open; otherwise, you will not be able to download it.
-
-Please keep these points in mind to ensure the proper functioning of your device.
-
-Once the execution policy is set, you can create and run a PowerShell script to list or uninstall apps. Here’s a simple script for listing and saving apps:
-
-#### **PowerShell Script Example**:
-
-To run the PowerShell script, you just need to copy and paste the entire script into the input field. Make sure to use **Windows PowerShell ISE** and not **Windows PowerShell** as this wouldn't contain a big input field to enter the script you want to run.
-
-### **Turn Off usage data access**
-
-Within the "Usage data access" within your settings, if you have given permission to some apps, they could do the following to monitor which other apps you use and how often, and identify your service provider, language settings, and other usage data.
-
-It is recommended to turn it off for each app. How?
-
-Go to **Settings**
-Search **usage data access**
-click **usage data access** and then look down the list and click "usage data access" again
-Click the 3 dots in the top right
-Select **Show system apps**
-Click each app and turn it off
-
-This way, those apps won't be able to track you anymore.
-
-### **How to install APK on your phone if you have accidentally removed myfiles from your phone**
-
-Example with Samsung Galaxy Store.
-
-1. **Go to Google and search for APK name**:
-
-```
-samsung galaxy store apk
+```powershell
+adb shell pm uninstall --user 0 com.sec.android.app.myfiles
 ```
 
-2. **Download APK on your computer**:
+Alternatively, install a package-viewer app such as **[App Inspector / Package Names](https://play.google.com/store/apps/details?id=com.csdroid.pkg)** to look up any installed package name directly on the phone.
 
-Download Link of [APKMirror](https://www.apkmirror.com/apk/samsung-electronics-co-ltd/galaxy-apps/galaxy-apps-4-5-88-5-release/samsung-galaxy-store-galaxy-apps-4-5-88-5-android-apk-download/download/?key=96e5f913bf7c74402d389d2ebc34aa22145665ad)
+## Restoring an app
 
-Rename the file and give it a simpler name like:
+To reinstall an app you removed per user, the simplest path is a **factory reset**, or reinstall from the store. To sideload an APK (for example, if you accidentally removed My Files or the Galaxy Store):
 
-```bash
-com.sec.android.app.samsungapps.apk
+```powershell
+adb push "C:\Users\<username>\Documents\<app>.apk" /data/local/tmp/
+adb shell pm install /data/local/tmp/<app>.apk
 ```
 
-3. **Create folder inside Documents and put APK inside**:
-   It's not recommended to put it inside of Downloads as it's difficult to access it from there. So, just put everything inside of Documents.
+Download trustworthy APKs from a reputable source such as [APKMirror](https://www.apkmirror.com/).
 
-4. **Put the file from your computer to phone**:
+## Turn off "Usage data access"
 
-```bash
-adb push "C:\Users\[username]\Documents\Samsung Store\com.sec.android.app.samsungapps.apk" /data/local/tmp/
-```
+Apps with "Usage data access" can monitor which other apps you use and how often. To revoke it:
 
-4. **Access file stored in phone and run it**:
+1. Open **Settings** and search for **Usage data access**.
+2. Tap the three-dot menu → **Show system apps**.
+3. Open each app and turn the permission off.
 
-```bash
-adb shell pm install /data/local/tmp/com.sec.android.app.samsungapps.apk
-```
+## Contributing
 
-### **How to uninstall an application if you don't know its package name**
-If you have an application on your Android device and you can't find out its package name, you can download [this](https://play.google.com/store/apps/details?id=com.csdroid.pkg&amp;hl=en) application and it will show you all your user and system applications including their package name, so if you enter its package name to remove it, the application will be removed.
+Contributions are welcome! If you've verified a package is safe to remove on your device:
 
-## **More Information**
+1. Fork the repository and create a branch.
+2. Add the package to the appropriate list (`apps.ps1` or `system.ps1`) with an inline comment describing what it is.
+3. Note your device model and One UI version in the pull request.
 
-What is the package name of **Samsung App Cloud**?
-https://www.reddit.com/r/Intune/comments/12iyniy/any_know_package_name_of_samsung_app_cloud_so_can/?rdt=52906<br>
+Please only submit packages you have personally tested, and clearly flag anything risky.
 
-How to uninstall **Samsung Gallery App** - Not recommended
-https://android.stackexchange.com/questions/234132/what-is-the-package-name-for-the-default-samsung-gallery-app<br>
+## Resources
 
-How to uninstall **Samsung Store Apps** - Not recommended
-https://stackoverflow.com/questions/65102614/samsung-store-apps-installer-package-name<br>
+Community references used while building and expanding the package lists:
 
-How to uninstall **Netflix**
-https://community.oneplus.com/thread/1540015<br>
+- [S10 / S10+ bloatware package list (XDA)](https://xdaforums.com/t/my-s10-s10-bloatware-package-name-list.4054003/)
+- [ADB to remove built-in apps + usage-data-access guide (XDA)](https://xdaforums.com/t/adb-to-remove-built-in-apps.3932377/)
+- [Uninstalling Netflix (OnePlus community)](https://community.oneplus.com/thread/1540015)
+- [Finding the Samsung Tips package (Galaxy Store)](https://galaxystore.samsung.com/detail/com.samsung.android.app.tips)
+- [Finding the Bixby Vision package (Galaxy Store)](https://galaxystore.samsung.com/detail/com.samsung.android.visionintelligence)
 
-Successfully uninstall **upday**, now I have zero news.
-https://xdaforums.com/t/successfully-uninstalled-upday-now-i-have-sohu-news-can-i-uninstall-that-too.4135515/<br>
+## Disclaimer
 
-How to find package of **Samsung Tips** to uninstall it succesffully
-https://galaxystore.samsung.com/detail/com.samsung.android.app.tips?langCd=da<br>
+This project is provided **as-is**, for educational and personal use. Removing system components can affect device behaviour. You are responsible for what you uninstall from your own device. Back up your data first. The author is not liable for any damage, data loss, or reduced functionality resulting from the use of these scripts.
 
-How to find package of **Bixby Vision** to uninstall it succesffully
-https://galaxystore.samsung.com/detail/com.samsung.android.visionintelligence<br>
+## License
 
-How to find package of **Google Messages** to uninstall it succesffully
-https://play.google.com/store/apps/details?id=com.google.android.apps.messaging&hl=de_CH<br>
-
-ChatGPT Chat for the creation of the script
-https://chatgpt.com/share/67964fed-96ec-8008-a60e-96b7f0b5a7d9<br>
-
-How to uninstall most popular apps - Part 1
-https://xdaforums.com/t/my-s10-s10-bloatware-package-name-list.4054003/<br>
-
-How to uninstall most popular apps - Part 2 (with included instructions on how to disable access to usage data)
-https://xdaforums.com/t/adb-to-remove-built-in-apps.3932377/
-
-### **Conclusion**
-
-ADB is a powerful tool that enables you to manage Android devices efficiently. You can list and uninstall apps, as well as perform a variety of other tasks, all through simple commands. Setting up ADB is quick and allows you to interact with your device directly from your computer. You can use PowerShell to automate tasks and manage your apps, and you can change the execution policy on Windows to allow running scripts.
-
-If you follow the steps outlined above, you’ll be able to list all apps on your device and uninstall any unnecessary ones, all while saving the data in a `.txt` file for reference.
+Released under the [MIT License](LICENSE).

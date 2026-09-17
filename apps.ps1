@@ -171,5 +171,54 @@ $apps = @(
 
     # === NEWS AGGREGATION ===
     # Pre-installed news app
-    "de.axelspringer.yana.zeropage"                      # Upday - News aggregation app
+    "de.axelspringer.yana.zeropage", # Upday - News aggregation app
+
+    # === MICROSOFT PARTNER APPS ===
+    # Pre-installed Microsoft software
+    "com.microsoft.skydrive", # OneDrive - Cloud storage app
+    "com.microsoft.appmanager", # Link to Windows - Phone Link companion
+    "com.microsoft.office.officehubrow", # Microsoft 365 (Office) - Office hub app
+    "com.microsoft.office.outlook", # Microsoft Outlook - Mail and calendar app
+    "com.linkedin.android", # LinkedIn - Social networking app
+
+    # === GOOGLE EXTRAS ===
+    # Additional pre-installed Google apps
+    "com.google.android.apps.tachyon", # Google Meet - Video calling app (formerly Duo)
+    "com.google.android.videos", # Google TV - Movies and TV (formerly Play Movies)
+    "com.google.android.play.games", # Google Play Games - Gaming service
+    "com.google.android.apps.photos", # Google Photos - Photo backup and gallery
+    "com.google.android.apps.docs", # Google Drive - Cloud storage app
+    "com.google.android.projection.gearhead", # Android Auto - In-car interface
+    "com.google.android.feedback", # Google Feedback - Feedback reporting service
+    "com.google.android.apps.subscriptions.red", # Google One - Subscription and storage app
+
+    # === SAMSUNG EDGE PANELS ===
+    # Edge panel add-ons
+    "com.samsung.android.app.appsedge", # Apps Edge - Edge panel app shortcuts
+    "com.samsung.android.app.taskedge", # Tasks Edge - Edge panel task shortcuts
+
+    # === SAMSUNG CONNECTIVITY & SHARING ===
+    # Device connectivity and content sharing
+    "com.samsung.android.oneconnect", # SmartThings - Smart home hub
+    "com.samsung.android.smartmirroring", # Smart View - Screen mirroring
+    "com.samsung.android.allshare.service.fileshare", # AllShare File Share - Legacy DLNA file sharing
+    "com.samsung.android.allshare.service.mediashare", # AllShare Media Share - Legacy DLNA media sharing
+    "com.samsung.android.beaconmanager", # Beacon Manager - Bluetooth beacon service
+    "com.samsung.android.easysetup", # Easy Setup - Device onboarding service
+
+    # === SAMSUNG APPS & SERVICES ===
+    # Additional Samsung applications
+    "com.samsung.android.voc", # Samsung Members - Support and community app
+    "com.samsung.android.shealth", # Samsung Health - Fitness and wellness tracker
+    "com.samsung.android.tvplus", # Samsung TV Plus - Free live TV streaming
+    "com.samsung.android.app.reminder", # Samsung Reminder - Task and reminder app
+    "com.samsung.android.smartswitchassistant", # Smart Switch Assistant - Data migration helper
+    "com.samsung.android.app.omcagent", # OMC Agent - Carrier customization service
+    "com.samsung.android.bixbyvision.framework", # Bixby Vision Framework - Bixby Vision backend
+
+    # === THIRD-PARTY PARTNER APPS ===
+    # Preloaded third-party apps from partner deals
+    "com.spotify.music", # Spotify - Music streaming app
+    "com.amazon.mShop.android.shopping", # Amazon Shopping - Shopping app
+    "com.instagram.android"                              # Instagram - Social media app
 )

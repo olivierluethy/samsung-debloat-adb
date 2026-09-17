@@ -8,19 +8,21 @@ Write-Host "==============================================================" -For
 Write-Host "Aktuelles Datum: $(Get-Date -Format 'dd.MM.yyyy HH:mm')" -ForegroundColor Gray
 Write-Host ""
 
-# Arbeitsverzeichnis dynamisch setzen
-$workingDirectory = "C:\Users\$([Environment]::UserName)\Documents\ADB-Nonsense-Apps-Removal"
+# Arbeitsverzeichnis dynamisch auf den Skriptordner setzen
+$workingDirectory = $PSScriptRoot
 Set-Location -Path $workingDirectory
 Write-Host "Arbeitsverzeichnis: $workingDirectory" -ForegroundColor Green
 
 # Prüfen, ob die Dateien existieren
 $appsScript = ".\apps.ps1"
 $systemScript = ".\system.ps1"
+$warningsScript = ".\warnings.ps1"
 
 # Skripte laden
 try {
     . $appsScript
     . $systemScript
+    . $warningsScript
 }
 catch {
     Write-Host "Fehler beim Laden der Skripte: $_" -ForegroundColor Red
@@ -58,17 +60,47 @@ function Test-AppInstalled($packageName) {
     return $null -ne $result
 }
 
+# Funktion, die vor folgenschweren Deinstallationen warnt und eine Bestätigung verlangt.
+# Gibt $true zurück, wenn entfernt werden darf, sonst $false (App wird übersprungen).
+function Confirm-Removal($packageName) {
+    $warn = $criticalWarnings[$packageName]
+    if (-not $warn) { return $true }  # Keine Warnung hinterlegt -> normal fortfahren
+
+    Write-Host ""
+    Write-Host "  ------------------------------------------------------------" -ForegroundColor DarkYellow
+    if ($warn.Level -eq 'Critical') {
+        Write-Host "  KRITISCHE WARNUNG - $packageName" -ForegroundColor Red
+        Write-Host "  $($warn.Message)" -ForegroundColor Red
+        Write-Host "  ------------------------------------------------------------" -ForegroundColor DarkYellow
+        $confirm = Read-Host "  Zum tatsaechlichen Entfernen 'LOESCHEN' eingeben (alles andere ueberspringt)"
+        return ($confirm -ceq 'LOESCHEN')
+    }
+    else {
+        Write-Host "  WARNUNG - $packageName" -ForegroundColor Yellow
+        Write-Host "  $($warn.Message)" -ForegroundColor Yellow
+        Write-Host "  ------------------------------------------------------------" -ForegroundColor DarkYellow
+        $confirm = Read-Host "  Trotzdem entfernen? (j/n)"
+        return ($confirm -eq 'j')
+    }
+}
+
 # Deinstallation durchführen
 Write-Host "`n=== Deinstallation wird gestartet ===" -ForegroundColor Cyan
 $currentApp = 0
+$skipped = 0
 
 foreach ($app in $apps) {
     $currentApp++
     Write-Progress -Activity "Deinstalliere Apps" -Status "$currentApp von $totalApps abgeschlossen" -PercentComplete (($currentApp / $totalApps) * 100)
     Write-Host "Prüfe $app..." -ForegroundColor White
-    
+
     try {
         if (Test-AppInstalled -packageName $app) {
+            if (-not (Confirm-Removal $app)) {
+                Write-Host "  Übersprungen: $app wurde auf Ihren Wunsch behalten." -ForegroundColor Cyan
+                $skipped++
+                continue
+            }
             adb shell pm uninstall $uninstallFlag --user 0 "$app" | Out-Null
             # Zweite Überprüfung nach Deinstallation
             if (-not (Test-AppInstalled -packageName $app)) {
@@ -95,6 +127,11 @@ if ($deleteSamsungUIFunctionality -eq 'j') {
         
         try {
             if (Test-AppInstalled -packageName $generalApp) {
+                if (-not (Confirm-Removal $generalApp)) {
+                    Write-Host "  Übersprungen: $generalApp wurde auf Ihren Wunsch behalten." -ForegroundColor Cyan
+                    $skipped++
+                    continue
+                }
                 adb shell pm uninstall $uninstallFlag --user 0 "$generalApp" | Out-Null
                 if (-not (Test-AppInstalled -packageName $generalApp)) {
                     Write-Host "  Erfolg: $generalApp wurde entfernt." -ForegroundColor Green
@@ -118,4 +155,7 @@ Write-Progress -Activity "Deinstallation" -Completed
 Write-Host "`n==============================================================" -ForegroundColor Cyan
 Write-Host "         Deinstallation abgeschlossen" -ForegroundColor Green
 Write-Host "==============================================================" -ForegroundColor Cyan
+if ($skipped -gt 0) {
+    Write-Host "$skipped App(s) wurden aufgrund von Warnungen übersprungen und behalten." -ForegroundColor Cyan
+}
 Write-Host "Vielen Dank für die Nutzung des Tools!" -ForegroundColor Gray

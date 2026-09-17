@@ -14,10 +14,10 @@ $system = @(
     "com.sec.android.easyMover.Agent", # Easy Mover (Data Transfer)
     "com.samsung.android.app.watchmanagerstub", # Samsung Watch Manager Stub
     "com.sec.android.daemonapp", # Samsung Daemon App
-    "com.samsung.android.app.social" # Samsung Social Hub
+    "com.samsung.android.app.social", # Samsung Social Hub
      # SAMSUNG LED COVER - Apps Related to Samsung’s LED Cover
      "com.samsung.android.app.ledbackcover", # LED Back Cover App
-     "com.sec.android.cover.ledcover" # LED Cover Service
+     "com.sec.android.cover.ledcover", # LED Cover Service
      # SAMSUNG DEX - Samsung's Desktop Experience Mode
     "com.sec.android.desktopmode.uiservice", # Samsung Dex Service
     "com.samsung.desktopsystemui", # Desktop UI for Dex Mode
